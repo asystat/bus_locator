@@ -1,0 +1,60 @@
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.example.com.benasque2014.mercurio.model;
+
+import com.example.android.wizardpager.wizard.model.ModelCallbacks;
+import com.example.android.wizardpager.wizard.model.Page;
+import com.example.android.wizardpager.wizard.model.ReviewItem;
+import com.example.android.wizardpager.wizard.ui.CustomerInfoFragment;
+import com.example.com.benasque2014.mercurio.HorasInfoFragment;
+import com.example.com.benasque2014.mercurio.RecorridoBasicInfoFragment;
+
+import android.support.v4.app.Fragment;
+import android.text.TextUtils;
+
+import java.util.ArrayList;
+
+/**
+ * A page asking for a name and an email.
+ */
+public class HorasInfoPage extends Page {
+    public static final String HORA_INICIO_DATA_KEY = "hora_inicio";
+    public static final String HORA_FIN_DATA_KEY = "hora_fin";
+    public static final String FRECUENCIA_DATA_KEY = "frecuencia";
+
+    public HorasInfoPage(ModelCallbacks callbacks, String title) {
+        super(callbacks, title);
+    }
+
+    @Override
+    public Fragment createFragment() {
+        return HorasInfoFragment.create(getKey());
+    }
+
+    @Override
+    public void getReviewItems(ArrayList<ReviewItem> dest) {
+        dest.add(new ReviewItem("Hora inicio", mData.getString(HORA_INICIO_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem("Hora fin", mData.getString(HORA_FIN_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem("Frecuencia", mData.getString(FRECUENCIA_DATA_KEY), getKey(), -1));
+        
+    }
+
+    @Override
+    public boolean isCompleted() {
+        return !TextUtils.isEmpty(mData.getString(HORA_INICIO_DATA_KEY)) && !TextUtils.isEmpty(mData.getString(HORA_FIN_DATA_KEY)) && !TextUtils.isEmpty(mData.getString(FRECUENCIA_DATA_KEY));
+    }
+}

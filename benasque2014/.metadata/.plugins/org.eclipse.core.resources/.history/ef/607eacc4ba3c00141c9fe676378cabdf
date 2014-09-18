@@ -1,0 +1,208 @@
+package com.example.com.benasque2014.mercurio;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import android.app.Fragment;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import com.example.com.benasque2014.mercurio.connections.CCPClient;
+import com.example.com.benasque2014.mercurio.connections.Parsers;
+import com.example.com.benasque2014.mercurio.connections.CCPClient.CCPClientHandle;
+import com.example.com.benasque2014.mercurio.model.Recorrido;
+import com.example.com.benasque2014.mercurio.model.SLatLng;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+public class RecorridosFragment extends Fragment implements OnItemClickListener {
+
+	private ListView list;
+	private View loading;
+	private View emptyView;
+	
+	private GetRecorridos taskRecorridos;
+
+	private List<Recorrido> recorridos;
+	public RecorridosFragment() {
+		setHasOptionsMenu(true);
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View rootView = inflater.inflate(R.layout.fragment_recorridos,
+				container, false);
+		list=(ListView) rootView.findViewById(R.id.list);
+		list.setEmptyView(rootView.findViewById(R.id.textEmpty));
+		loading=rootView.findViewById(R.id.progress);
+		emptyView=rootView.findViewById(R.id.textEmpty);
+		list.setAdapter(new RecorridosAdapter(getActivity(), new ArrayList<Recorrido>(), true));
+		list.setOnItemClickListener(this);
+		return rootView;
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.recorridos, menu);
+
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+	
+	
+	
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		
+		if (id == R.id.action_add) {
+			startActivity(new Intent(getActivity().getApplicationContext(),AddRecorridoActivity.class));
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		startTaskGetRecorridos();
+	}
+
+	
+	@Override
+	public void onPause() {
+		//taskRecorridos.cancel(true);
+		super.onPause();
+	}
+
+	private void startTaskGetRecorridos(){
+		emptyView.setVisibility(View.GONE);
+		loading.setVisibility(View.VISIBLE);
+		list.setVisibility(View.GONE);
+		
+		CCPClient.getRutas(new CCPClientHandle() {
+
+			@Override
+			public void result(boolean error, JsonArray data) {
+				emptyView.setVisibility(View.VISIBLE);
+				loading.setVisibility(View.GONE);
+				list.setVisibility(View.VISIBLE);
+				
+				if (data==null) {
+					if (getActivity()!=null){ // Por si hemos vuelto atras
+						Toast.makeText(getActivity(), "No internet", Toast.LENGTH_SHORT).show();
+						startTaskGetRecorridos();
+					}
+				} else {
+					List<Recorrido> parseData = Parsers.parseRecorridos(data);
+					list.setAdapter(new RecorridosAdapter(getActivity(), parseData, true));
+				}
+			}
+		});
+		/*
+		if (taskRecorridos!=null)
+			taskRecorridos.cancel(true);
+		
+		taskRecorridos=new GetRecorridos();
+		taskRecorridos.execute();*/
+	}
+	
+	private class GetRecorridos extends AsyncTask<Void, Void, List<Recorrido>>{
+
+		@Override
+		protected List<Recorrido> doInBackground(Void... params) {
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			List<Recorrido> recs=null;//getDummyData(); //TODO llamada a server
+			
+			
+			return recs;
+		}
+
+		@Override
+		protected void onPostExecute(List<Recorrido> result) {
+			super.onPostExecute(result);
+			emptyView.setVisibility(View.VISIBLE);
+			loading.setVisibility(View.GONE);
+			list.setVisibility(View.VISIBLE);
+			
+			if (result==null) {
+				Toast.makeText(getActivity(), "No internet", Toast.LENGTH_SHORT).show();
+				startTaskGetRecorridos();
+			} else {
+				list.setAdapter(new RecorridosAdapter(getActivity(), result, true));
+			}
+		}
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			emptyView.setVisibility(View.GONE);
+			loading.setVisibility(View.VISIBLE);
+			list.setVisibility(View.GONE);
+		}
+		
+	}
+	/*
+	private List<Recorrido> getDummyData(){
+		List<Recorrido> recorridos=new ArrayList<Recorrido>();
+		Recorrido r=new Recorrido();
+		r.setName("Linea 1");
+		List<SLatLng> puntos=new ArrayList<SLatLng>();
+		puntos.add(new SLatLng(0.0, 0.0));
+		puntos.add(new SLatLng(0.0, 0.0));
+		puntos.add(new SLatLng(0.0, 0.0));
+		r.setPuntos(puntos);
+		r.setClase("1A");
+		r.setCodigo(1);
+		r.setHoraInicio("07:00");
+		r.setHoraFin("19:00");
+		recorridos.add(r);
+		
+		Random rnd=new Random();
+		int to=rnd.nextInt(15);
+		for (int i=0;i<to;i++){
+			r=new Recorrido();
+			r.setName("Linea " + (i+2));
+			puntos=new ArrayList<SLatLng>();
+			puntos.add(new SLatLng(0.0, 0.0));
+			puntos.add(new SLatLng(0.0, 0.0));
+			puntos.add(new SLatLng(0.0, 0.0));
+			r.setPuntos(puntos);
+			r.setClase((i+1)+"B");
+			r.setCodigo(1);
+			r.setHoraInicio("07:00");
+			r.setHoraFin("19:00");
+			recorridos.add(r);
+		}
+		
+		return recorridos;
+	}*/
+
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+		Recorrido r=recorridos.get(arg2);
+		Log.v("r", r.toString());
+	}
+}

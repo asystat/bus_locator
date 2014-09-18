@@ -1,0 +1,416 @@
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.example.com.benasque2014.mercurio;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+
+import android.app.Activity;
+import android.app.Dialog;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.example.com.benasque2014.mercurio.connections.CCPClient;
+import com.example.com.benasque2014.mercurio.model.Bus;
+import com.example.com.benasque2014.mercurio.model.Recorrido;
+import com.example.com.benasque2014.mercurio.model.SLatLng;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+public class FamiliaMapaFragment extends Fragment {
+
+	/**
+	 * Note that this may be null if the Google Play services APK is not
+	 * available.
+	 */
+
+	private static final int UPDATE_DELAY = 5000;
+
+	private Handler updateHandler;
+	private GoogleMap mMap;
+	private Double latitude, longitude;
+
+	public static FamiliaMapaFragment create(Recorrido r) {
+		FamiliaMapaFragment fragment = new FamiliaMapaFragment();
+		Bundle b = new Bundle();
+		b.putSerializable(Recorrido.KEY, r);
+		fragment.setArguments(b);
+		return fragment;
+
+	}
+
+	private Recorrido recorrido;
+
+	public FamiliaMapaFragment() {
+		updateHandler = new Handler();
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
+	
+	
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.mapamenu, menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if(item.getItemId()==R.id.action_details){
+			Dialog d=new Dialog(getActivity());
+			d.setTitle("Detalles del trayecto");
+			d.setContentView(R.layout.dialog_details);
+			TextView text=(TextView)d.findViewById(R.id.text);
+			text.setText("");
+			text.append("Nombre: "+recorrido.getName()+"\n");
+			text.append("Código: "+recorrido.getCodigo()+"\n");
+			text.append("Clase: "+recorrido.getClase()+"\n");
+			text.append("Hora inicio: "+recorrido.getHoraInicio()+"\n");
+			text.append("Hora fin: "+recorrido.getHoraFin()+"\n");
+			text.append("Frecuencia: "+recorrido.getFrecuencia()+"\n");
+			text.append("Incidencia: "+recorrido.getIncidencia()+"\n");
+			d.show();
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	Vector<Marker> buses;
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+
+		buses = new Vector<Marker>();
+		recorrido = (Recorrido) getArguments().getSerializable(Recorrido.KEY);
+
+		View rootView = inflater.inflate(R.layout.fragment_family_map,
+				container, false);
+		TextView incidencia = (TextView) rootView
+				.findViewById(R.id.textIncidencia);
+		if (recorrido.getIncidencia().equalsIgnoreCase(""))
+			incidencia.setVisibility(View.GONE);
+		else
+			incidencia.setText(recorrido.getIncidencia());
+		// Passing harcoded values for latitude & longitude. Please change as
+		// per your need. This is just used to drop a Marker on the Map
+		latitude = 42.6042858;
+		longitude = 0.5228286000000253;
+
+		setUpMapIfNeeded();
+
+		return rootView;
+	}
+
+	@Override
+	public void onResume() {
+
+		super.onResume();
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+	}
+
+	/***** Sets up the map if it is possible to do so *****/
+	public void setUpMapIfNeeded() {
+		Log.d("setupmapifneeded", "yea");
+		// Do a null check to confirm that we have not already instantiated the
+		// map.
+		if (mMap == null) {
+			// Try to obtain the map from the SupportMapFragment.
+			mMap = ((SupportMapFragment) getActivity()
+					.getSupportFragmentManager().findFragmentById(
+							R.id.location_map)).getMap();
+			Log.d("map es null, creando", "yea");
+			// Check if we were successful in obtaining the map.
+			if (mMap != null)
+				setUpMap();
+		}
+
+	}
+
+	/**
+	 * This is where we can add markers or lines, add listeners or move the
+	 * camera.
+	 * <p>
+	 * This should only be called once and when we are sure that {@link #mMap}
+	 * is not null.
+	 */
+	private void setUpMap() {
+		Log.d("setupmap", "yea");
+		// For showing a move to my loction button
+		mMap.setMyLocationEnabled(true);
+
+		Log.d("setupmap", "lat:" + latitude + " - lon:" + longitude);
+		// For zooming automatically to the Dropped PIN Location
+		mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(
+				latitude, longitude), 12.0f));
+
+		addMarkersToMap();
+
+		startUpdateHandler();
+
+	}
+
+	
+	
+	
+	private Runnable updateRunnable;
+
+	private void startUpdateHandler() {
+
+		if (updateRunnable == null) {
+			updateRunnable = new Runnable() {
+
+				@Override
+				public void run() {
+					// llamada con handler
+					// en el handler hacer
+
+					CCPClient.verBuses(recorrido.getCodigo(),
+							new CCPClient.CCPClientHandle() {
+
+								@Override
+								public void result(boolean error, JsonArray data) {
+									if (data==null || error)
+										return;
+										
+									flushBuses();
+									 Iterator<JsonElement> i = data.iterator();
+									 while(i.hasNext()){
+										 Bus b=new Bus();
+										 JsonObject j=i.next().getAsJsonObject();
+										 b.Nombre=j.get("Nombre").getAsString();
+										 b.IdTelefono=j.get("IdTelefono").getAsString();
+										 b.Codigo=j.get("Codigo").getAsString();
+										 b.Mensaje=j.get("Mensaje").getAsString();
+										 String[] posiciones=j.get("Posiciones").getAsString().split(":");
+										 if (b.Posiciones==null)
+											 b.Posiciones=new ArrayList<SLatLng>();
+										 for (int w=0;w<posiciones.length;w++){
+											 String[] pos=posiciones[w].split(",");
+											 SLatLng ll=new SLatLng(Double.parseDouble(pos[0]), Double.parseDouble(pos[1]));
+											 b.Posiciones.add(ll);
+										 }
+										 addBus(b);
+									 }
+									 
+									
+									updateHandler.postDelayed(updateRunnable,
+											UPDATE_DELAY);
+								}
+							});
+				}
+
+			};
+		}
+		updateHandler.removeMessages(0);
+		updateHandler.post(updateRunnable);
+	}
+
+	private void stopUpdateHandler() {
+		if (updateHandler != null)
+			updateHandler.removeMessages(0);
+	}
+
+	private void addMarkersToMap() {
+		Log.d("addmarkerstomap", "yea");
+		if (points == null)
+			points = new ArrayList<LatLng>();
+		points.clear();
+		Log.d("addmarkerstomap añadiendo", "yea");
+		markers = new ArrayList<Marker>();
+		if (mMap != null)
+			mMap.clear();
+		Iterator<SLatLng> it = recorrido.getPuntos().iterator();
+		while (it.hasNext()) {
+			SLatLng mact = it.next();
+			addPoint(new LatLng(mact.lat, mact.lng));
+
+		}
+		//TODO: si queremos añadir líneas entre los puntos
+		//addLines();
+
+	}
+
+	private List<Polyline> lineas;
+
+	private void addLines() {
+		if (lineas == null)
+			lineas = new ArrayList<Polyline>();
+		for (int j = 0; j < lineas.size(); j++) {
+			(lineas.get(j)).remove();
+		}
+		lineas.clear();
+		for (int i = 0; i < points.size() - 1; i++) {
+			LatLng src = points.get(i);
+			LatLng dest = points.get(i + 1);
+			Polyline line = mMap.addPolyline(new PolylineOptions()
+					// mMap is the Map Object
+					.add(new LatLng(src.latitude, src.longitude),
+							new LatLng(dest.latitude, dest.longitude)).width(5)
+					.color(Color.BLUE).geodesic(true));
+			lineas.add(line);
+		}
+	}
+	
+	private void addLines(Bus b) {
+		if (lineas == null)
+			lineas = new ArrayList<Polyline>();
+		for (int j = 0; j < lineas.size(); j++) {
+			(lineas.get(j)).remove();
+		}
+		lineas.clear();
+		
+		for (int i = 0; i < b.Posiciones.size() - 1; i++) {
+			SLatLng src = b.Posiciones.get(i);
+			SLatLng dest = b.Posiciones.get(i + 1);
+			Polyline line = mMap.addPolyline(new PolylineOptions()
+					// mMap is the Map Object
+					.add(new LatLng(src.lat, src.lng),
+							new LatLng(dest.lat, dest.lng)).width(2)
+					.color(Color.BLUE).geodesic(true));
+			lineas.add(line);
+		}
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+	}
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
+		if (mMap != null)
+			setUpMap();
+
+		if (mMap == null) {
+			// Try to obtain the map from the SupportMapFragment.
+			mMap = ((SupportMapFragment) getActivity()
+					.getSupportFragmentManager().findFragmentById(
+							R.id.location_map)).getMap();
+			// Check if we were successful in obtaining the map.
+			if (mMap != null)
+				setUpMap();
+		}
+
+	}
+
+	/****
+	 * The mapfragment's id must be removed from the FragmentManager or else if
+	 * the same it is passed on the next time then app will crash
+	 ****/
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		try {
+			if (mMap != null) {
+				getActivity()
+						.getSupportFragmentManager()
+						.beginTransaction()
+						.remove(getActivity().getSupportFragmentManager()
+								.findFragmentById(R.id.location_map)).commit();
+				mMap = null;
+			}
+		} catch (Exception e) {
+		}
+	}
+
+	private List<Marker> markers;
+	public List<LatLng> points;
+
+	private void addPoint(LatLng point) {
+		MarkerOptions marker = new MarkerOptions().position(point).title(
+				"Parada " + (markers.size() + 1));
+
+		final Marker mMarker = mMap.addMarker(marker);
+
+		// if (markers.size()==0)
+		// Toast.makeText(getActivity(),
+		// "Haga click en un punto para eliminarlo", Toast.LENGTH_SHORT).show();
+
+		markers.add(mMarker);
+		points.add(point);
+
+	}
+
+	private void addBus(Bus b) {
+		
+		LatLng point=new LatLng(b.Posiciones.get(b.Posiciones.size()-1).lat, b.Posiciones.get(b.Posiciones.size()-1).lng);
+		MarkerOptions marker = new MarkerOptions()
+				.position(point)
+				.title(b.Mensaje)
+				.icon(BitmapDescriptorFactory
+						.fromResource(R.drawable.bus));
+		
+
+		final Marker mMarker = mMap.addMarker(marker);
+		if(b.Mensaje!=null && b.Mensaje.length()>0)
+			mMarker.showInfoWindow();
+
+		// if (markers.size()==0)
+		// Toast.makeText(getActivity(),
+		// "Haga click en un punto para eliminarlo", Toast.LENGTH_SHORT).show();
+
+		buses.add(mMarker);
+	}
+	
+	private void flushBuses(){
+		for(Marker m:buses){
+			m.remove();
+		}
+		buses.clear();
+	}
+
+	@Override
+	public void onPause() {
+		stopUpdateHandler();
+		super.onPause();
+	}
+
+}

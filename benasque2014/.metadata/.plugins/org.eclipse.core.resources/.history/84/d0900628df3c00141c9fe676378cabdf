@@ -1,0 +1,52 @@
+package com.example.com.benasque2014.mercurio.connections;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.example.com.benasque2014.mercurio.model.Recorrido;
+import com.example.com.benasque2014.mercurio.model.SLatLng;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+public class Parsers {
+	public static List<Recorrido> parseRecorridos(JsonArray data){
+		List<Recorrido> list=new ArrayList<Recorrido>();
+		Iterator<JsonElement> it = data.iterator();
+		Recorrido r;
+		while (it.hasNext()){
+			JsonObject jr = it.next().getAsJsonObject();
+			
+			r=new Recorrido();
+			r.setName(jr.get("Nombre").getAsString());
+			r.setCodigo(jr.get("Codigo").getAsString());
+			r.setClase(jr.get("Clase").getAsString());
+			r.setHoraInicio(jr.get("HoraInicio").getAsString());
+			r.setHoraFin(jr.get("HoraFin").getAsString());
+			r.setFrecuencia(jr.get("FrecuenciaDePaso").getAsString());
+			boolean[] frecs=new boolean[7];
+			frecs[0]=jr.getAsJsonObject("Periodicidad").get("L").getAsBoolean();
+			frecs[1]=jr.getAsJsonObject("Periodicidad").get("M").getAsBoolean();
+			frecs[2]=jr.getAsJsonObject("Periodicidad").get("X").getAsBoolean();
+			frecs[3]=jr.getAsJsonObject("Periodicidad").get("J").getAsBoolean();
+			frecs[4]=jr.getAsJsonObject("Periodicidad").get("V").getAsBoolean();
+			frecs[5]=jr.getAsJsonObject("Periodicidad").get("S").getAsBoolean();
+			frecs[6]=jr.getAsJsonObject("Periodicidad").get("D").getAsBoolean();
+			r.setTrayectoPeriodico(frecs);
+			List<SLatLng> paradas=new ArrayList<SLatLng>();
+			JsonArray jParadas = jr.getAsJsonArray("ListaDeParadas");
+			Iterator<JsonElement> it2 = jParadas.iterator();
+			while (it2.hasNext()){
+				JsonObject jp = it2.next().getAsJsonObject();
+				SLatLng point=new SLatLng(jp.get("lat").getAsDouble(), jp.get("lon").getAsDouble());
+				paradas.add(point);
+			}
+			r.setPuntos(paradas);
+			r.setIncidencia(jr.get("Incidencias").getAsString());
+			
+			list.add(r);
+		}
+		return list;
+	}
+}

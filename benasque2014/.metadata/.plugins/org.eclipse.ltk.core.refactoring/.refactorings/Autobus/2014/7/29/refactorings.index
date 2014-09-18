@@ -1,0 +1,49 @@
+1405716772278	Extracts string 'null' into R.string.bus
+1405716877506	Extracts string 'null' into R.string.familia
+1405717809019	Delete element
+1405717950704	Rename type 'RecorridosActivity'
+1405722980325	Rename resource 'list_item_example.xml'
+1405724498734	Extracts string 'null' into R.string.lista_recorridos_vacia
+1405734052283	Rename type 'MainActivity'
+1405734130768	Copy file
+1405734172658	Rename type 'SandwichWizardModel'
+1405734995302	Rename resource 'fragment_page_customer_info.xml'
+1405735034968	Extracts string 'null' into R.string.label_nombre
+1405735082670	Extracts string 'null' into R.string.hint_lineanombre
+1405735102644	Extracts string 'null' into R.string.label_codigo
+1405735130658	Extracts string 'null' into R.string.hint_codigo
+1405735216336	Extracts string 'null' into R.string.label_clase
+1405735230032	Extracts string 'null' into R.string.hint_clase
+1405735428366	Rename type 'CustomerInfoFragment'
+1405735534741	Rename type 'CustomerInfoPage'
+1405735750537	Rename resource 'fragment_basic_bus_info.xml'
+1405737708662	Copy compilation unit
+1405737746825	Copy file
+1405737772160	Extracts string 'null' into R.string.label_horainicio
+1405737802972	Extracts string 'null' into R.string.hint_horainicio
+1405737821216	Extracts string 'null' into R.string.label_horafin
+1405737841392	Extracts string 'null' into R.string.hint_horafin
+1405737947316	Extracts string 'null' into R.string.label_frecuenciadepaso
+1405737968126	Extracts string 'null' into R.string.hint_frecuenciadepaso
+1405738010234	Delete element
+1405738020770	Copy compilation unit
+1405738089324	Copy compilation unit
+1405741995563	Copy compilation unit
+1405742086887	Copy file
+1405742167968	Extracts string 'null' into R.string.label_puntosayuda
+1405742360973	Copy compilation unit
+1405759212067	Rename field 'points'
+1405762590012	Delete element
+1405765437245	Delete element
+1405780157269	Rename resource 'ncEX7kdLi.png'
+1405780242157	Rename resource 'circle0.png'
+1405780250162	Rename resource 'circle_png_by_xdicsii-d4a2odp (1).png'
+1405782708368	Rename type 'SLatLon'
+1405795068436	Encapsulate field 'incidencia'
+1405816212889	Copy compilation unit
+1405817238939	Rename type 'TestBroadcastReceiver'
+1405820977928	Copy compilation unit
+1405821209774	Copy file
+1405835367252	Copy file
+1405835376839	Rename resource 'mapamenu'
+1405836002025	Delete element

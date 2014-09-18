@@ -1,0 +1,53 @@
+package com.example.com.benasque2014.mercurio.connections;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.example.com.benasque2014.mercurio.model.Recorrido;
+import com.example.com.benasque2014.mercurio.model.SLatLng;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+public class Parsers {
+	public static List<Recorrido> parseRecorridos(JsonArray data){
+		List<Recorrido> list=new ArrayList<Recorrido>();
+		Iterator<JsonElement> it = data.iterator();
+		Recorrido r;
+		while (it.hasNext()){
+			JsonObject jr = it.next().getAsJsonObject();
+			
+			r=new Recorrido();
+			r.setName(jr.get("Nombre").getAsString());
+			r.setCodigo(jr.get("Codigo").getAsString());
+			r.setClase(jr.get("Clase").getAsString());
+			r.setHoraInicio(jr.get("HoraInicio").getAsString());
+			r.setHoraFin(jr.get("HoraFin").getAsString());
+			r.setFrecuencia(jr.get("FrecuenciaDePaso").getAsString());
+			String[] sFrecuencias=jr.getAsJsonObject("Periodicidad").getAsString().split(":");
+			boolean[] frecs=new boolean[7];
+			frecs[0]=sFrecuencias[0].equalsIgnoreCase("0")?true:false;
+			frecs[1]=sFrecuencias[1].equalsIgnoreCase("0")?true:false;
+			frecs[2]=sFrecuencias[2].equalsIgnoreCase("0")?true:false;
+			frecs[3]=sFrecuencias[3].equalsIgnoreCase("0")?true:false;
+			frecs[4]=sFrecuencias[4].equalsIgnoreCase("0")?true:false;
+			frecs[5]=sFrecuencias[5].equalsIgnoreCase("0")?true:false;
+			frecs[6]=sFrecuencias[6].equalsIgnoreCase("0")?true:false;
+			r.setTrayectoPeriodico(frecs);
+			List<SLatLng> paradas=new ArrayList<SLatLng>();
+			JsonArray jParadas = jr.getAsJsonArray("ListaDeParadas");
+			Iterator<JsonElement> it2 = jParadas.iterator();
+			while (it2.hasNext()){
+				JsonObject jp = it2.next().getAsJsonObject();
+				SLatLng point=new SLatLng(jp.get("lat").getAsDouble(), jp.get("lon").getAsDouble());
+				paradas.add(point);
+			}
+			r.setPuntos(paradas);
+			r.setIncidencia(jr.get("Incidencias").getAsString());
+			
+			list.add(r);
+		}
+		return list;
+	}
+}

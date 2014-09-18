@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="com.example.com.benasque2014.mercurio.SelectorModoFragment"/>
+<fullyQualifiedTypeName name="android.content.Intent"/>
+<fullyQualifiedTypeName name="com.example.com.benasque2014.mercurio.RecorridosActivity"/>
+<fullyQualifiedTypeName name="com.example.com.benasque2014.mercurio.RecorridosFragment"/>
+<fullyQualifiedTypeName name="android.view.MenuInflater"/>
+<fullyQualifiedTypeName name="android.view.MenuItem"/>
+<fullyQualifiedTypeName name="android.widget.ArrayAdapter"/>
+<fullyQualifiedTypeName name="com.example.com.benasque2014.mercurio.model.Recorrido"/>
+<fullyQualifiedTypeName name="android.app.Activity"/>
+<fullyQualifiedTypeName name="android.view.ViewGroup"/>
+<fullyQualifiedTypeName name="android.view.View"/>
+<fullyQualifiedTypeName name="android.view.LayoutInflater"/>
+<fullyQualifiedTypeName name="android.widget.ImageView"/>
+<fullyQualifiedTypeName name="android.app.AlertDialog"/>
+<fullyQualifiedTypeName name="android.content.DialogInterface"/>
+<fullyQualifiedTypeName name="com.google.gson.reflect.TypeToken"/>
+<fullyQualifiedTypeName name="java.util.List"/>
+<fullyQualifiedTypeName name="com.google.android.gms.maps.model.LatLng"/>
+<fullyQualifiedTypeName name="android.renderscript.Type"/>
+<fullyQualifiedTypeName name="java.lang.reflect.Type"/>
+<fullyQualifiedTypeName name="com.google.gson.Gson"/>
+<fullyQualifiedTypeName name="com.example.com.benasque2014.mercurio.model.PuntosInfoPage"/>
+<fullyQualifiedTypeName name="java.util.Iterator"/>
+<fullyQualifiedTypeName name="android.view.View.OnClickListener"/>
+<fullyQualifiedTypeName name="com.example.com.benasque2014.mercurio.KeyStoreController"/>
+<fullyQualifiedTypeName name="com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary"/>
+<fullyQualifiedTypeName name="com.example.com.benasque2014.mercurio.SendLocationActivity"/>
+<fullyQualifiedTypeName name="com.example.com.benasque2014.mercurio.R.menu"/>
+<fullyQualifiedTypeName name="com.example.com.benasque2014.mercurio.R.id"/>
+<fullyQualifiedTypeName name="com.example.com.benasque2014.mercurio.R.layout"/>
+<fullyQualifiedTypeName name="android.util.Log"/>
+<fullyQualifiedTypeName name="android.widget.Toast"/>
+<fullyQualifiedTypeName name="java.util.ArrayList"/>
+<fullyQualifiedTypeName name="com.example.com.benasque2014.mercurio.utils.Utils"/>
+<fullyQualifiedTypeName name="android.widget.TextView"/>
+</qualifiedTypeNameHistroy>

@@ -1,0 +1,6 @@
+package com.example.com.benasque2014.mercurio.model;
+
+public class Bus {
+	public String IdTelefono, Nombre, Codigo, Mensaje;
+	public double Latitud, Longitud;
+}

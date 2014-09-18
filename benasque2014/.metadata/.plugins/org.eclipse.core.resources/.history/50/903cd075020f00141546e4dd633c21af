@@ -1,0 +1,278 @@
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.example.com.benasque2014.mercurio;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
+import com.example.com.benasque2014.mercurio.model.PuntosInfoPage;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+public class PuntosInfoFragment extends Fragment implements OnMapClickListener {
+    private static final String ARG_KEY = "key";
+
+    private PageFragmentCallbacks mCallbacks;
+    private String mKey;
+    private PuntosInfoPage mPage;
+    private TextView mNameView;
+    private TextView mCodigoView;
+    private TextView mClassView;
+    
+    
+    /**
+     * Note that this may be null if the Google Play services APK is not
+     * available.
+     */
+
+    private static GoogleMap mMap;
+    private static Double latitude, longitude;
+    
+    
+    public static PuntosInfoFragment create(String key) {
+        Bundle args = new Bundle();
+        args.putString(ARG_KEY, key);
+
+        PuntosInfoFragment fragment = new PuntosInfoFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public PuntosInfoFragment() {
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Bundle args = getArguments();
+        mKey = args.getString(ARG_KEY);
+        mPage = (PuntosInfoPage) mCallbacks.onGetPage(mKey);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_page_map, container, false);
+        ((TextView) rootView.findViewById(android.R.id.title)).setText(mPage.getTitle());
+
+     // Passing harcoded values for latitude & longitude. Please change as per your need. This is just used to drop a Marker on the Map
+        latitude = 42.6042858;
+        longitude = 0.5228286000000253;
+
+        setUpMapIfNeeded(); // For setting up the MapFragment
+        
+        //TODO:
+        /*
+        mNameView = ((TextView) rootView.findViewById(R.id.bus_name));
+        mNameView.setText(mPage.getData().getString(RecorridoBasicInfoPage.NAME_DATA_KEY));
+
+        mCodigoView = ((TextView) rootView.findViewById(R.id.bus_code));
+        mCodigoView.setText(mPage.getData().getString(RecorridoBasicInfoPage.CODIGO_DATA_KEY));
+        
+        mClassView = ((TextView) rootView.findViewById(R.id.bus_class));
+        mClassView.setText(mPage.getData().getString(RecorridoBasicInfoPage.CLASE_DATA_KEY));
+        */
+        return rootView;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        if (!(activity instanceof PageFragmentCallbacks)) {
+            throw new ClassCastException("Activity must implement PageFragmentCallbacks");
+        }
+
+        mCallbacks = (PageFragmentCallbacks) activity;
+    }
+
+    /***** Sets up the map if it is possible to do so *****/
+    public void setUpMapIfNeeded() {
+        // Do a null check to confirm that we have not already instantiated the map.
+        if (mMap == null) {
+            // Try to obtain the map from the SupportMapFragment.
+            mMap = ((SupportMapFragment) getActivity().getSupportFragmentManager()
+                    .findFragmentById(R.id.location_map)).getMap();
+            
+            mMap.setOnMapClickListener(this);
+            // Check if we were successful in obtaining the map.
+            if (mMap != null)
+                setUpMap();
+        }
+    }
+
+    /**
+     * This is where we can add markers or lines, add listeners or move the
+     * camera.
+     * <p>
+     * This should only be called once and when we are sure that {@link #mMap}
+     * is not null.
+     */
+    private static void setUpMap() {
+        // For showing a move to my loction button
+        mMap.setMyLocationEnabled(true);
+        // For dropping a marker at a point on the Map
+        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("My Home").snippet("Home Address"));
+        // For zooming automatically to the Dropped PIN Location
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude,
+                longitude), 12.0f));
+    }
+
+    
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        
+        if (mMap != null)
+            setUpMap();
+
+        if (mMap == null) {
+            // Try to obtain the map from the SupportMapFragment.
+            mMap = ((SupportMapFragment) getActivity().getSupportFragmentManager()
+                    .findFragmentById(R.id.location_map)).getMap();
+            // Check if we were successful in obtaining the map.
+            if (mMap != null)
+                setUpMap();
+        }
+        
+        //TODO:
+        /*
+        mNameView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1,
+                    int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                mPage.getData().putString(RecorridoBasicInfoPage.NAME_DATA_KEY,
+                        (editable != null) ? editable.toString() : null);
+                
+                mPage.notifyDataChanged();
+            }
+        });
+
+        mCodigoView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1,
+                    int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                mPage.getData().putString(RecorridoBasicInfoPage.CODIGO_DATA_KEY,
+                        (editable != null) ? editable.toString() : null);
+                mPage.notifyDataChanged();
+            }
+        });
+        
+        mClassView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1,
+                    int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                mPage.getData().putString(RecorridoBasicInfoPage.CLASE_DATA_KEY,
+                        (editable != null) ? editable.toString() : null);
+                mPage.notifyDataChanged();
+            }
+        });
+        */
+    }
+
+    @Override
+    public void setMenuVisibility(boolean menuVisible) {
+        super.setMenuVisibility(menuVisible);
+
+        // In a future update to the support library, this should override setUserVisibleHint
+        // instead of setMenuVisibility.
+        /*
+        if (mNameView != null) {
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            if (!menuVisible) {
+                imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+            }
+        }
+        */
+    }
+    
+    /**** The mapfragment's id must be removed from the FragmentManager
+     **** or else if the same it is passed on the next time then 
+     **** app will crash ****/
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (mMap != null) {
+            getActivity().getSupportFragmentManager().beginTransaction()
+                .remove(getActivity().getSupportFragmentManager().findFragmentById(R.id.location_map)).commit();
+            mMap = null;
+        }
+    }
+
+	@Override
+	public void onMapClick(LatLng arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	private List<Marker> points;
+	private void addPoint(LatLng point){
+		if (points!=null)
+			points=new ArrayList<Marker>();
+		
+		MarkerOptions marker = new MarkerOptions().position(
+                new LatLng(point.latitude, point.longitude)).title("Parada " + points.size()+1);
+
+		points.add(marker);
+	}
+}

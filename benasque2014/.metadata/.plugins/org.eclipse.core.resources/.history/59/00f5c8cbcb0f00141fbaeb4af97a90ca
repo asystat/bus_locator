@@ -1,0 +1,127 @@
+package com.example.com.benasque2014.mercurio;
+
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.app.Activity;
+import android.app.Fragment;
+import android.os.Bundle;
+import android.provider.Settings.Secure;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+
+import com.example.com.benasque2014.mercurio.connections.CCPClient;
+import com.example.com.benasque2014.mercurio.model.Recorrido;
+import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
+
+public class SendLocationActivity extends Activity {
+
+	private Recorrido recorrido;
+	private String codigo;
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_send_location);
+
+		if (savedInstanceState == null) {
+			getFragmentManager().beginTransaction()
+					.add(R.id.container, new PlaceholderFragment()).commit();
+		}
+		try{
+		recorrido=(Recorrido) getIntent().getExtras().getSerializable(Recorrido.KEY);
+		} catch (Exception e){
+			recorrido=null;
+		}
+		if (recorrido==null){
+			codigo=KeyStoreController.getKeyStore().getString("transmitiendo", "");
+		} else{
+			codigo=recorrido.getCodigo();
+			KeyStoreController.getKeyStore().setPreference("transmitiendo", codigo);
+		}
+		
+		LocationLibrary.forceLocationUpdate(getApplicationContext());
+		
+		findViewById(R.id.stop).setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				LocationLibrary.stopAlarmAndListener(getApplicationContext());
+				KeyStoreController.getKeyStore().setPreference("transmitiendo", "");
+				CCPClient.dejarRutaBuses(Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID), null);
+				CCPClient.dejarRutaBuses(Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID), null);
+				finish();
+			}
+		});
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.send_location, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	/**
+	 * A placeholder fragment containing a simple view.
+	 */
+	public static class PlaceholderFragment extends Fragment {
+		AnimatorSet set;
+		ImageView imgView;
+		int imgResources[] = { R.drawable.circle0, R.drawable.circle1 };
+		int index = 0;
+
+		public PlaceholderFragment() {
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View rootView = inflater.inflate(R.layout.fragment_send_location,
+					container, false);
+
+			imgView = (ImageView) rootView.findViewById(R.id.image);
+			setAnimation();
+
+			return rootView;
+		}
+
+		private void setAnimation() {
+			try{
+			set = (AnimatorSet) AnimatorInflater.loadAnimator(getActivity()
+					.getApplicationContext(), R.animator.wave);
+			set.setTarget(imgView);
+
+			set.addListener(new AnimatorListenerAdapter() {
+				 
+				@Override
+				public void onAnimationEnd(Animator animation) {
+				    super.onAnimationEnd(animation);
+				    setAnimation();
+				}
+				 
+				});
+			set.start();
+			}catch (Exception e){}
+		}
+	}
+
+}

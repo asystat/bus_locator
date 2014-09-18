@@ -1,0 +1,11 @@
+package com.example.android.wizardpager.wizard.model;
+
+public class Branch {
+    public String choice;
+    public PageList childPageList;
+
+    private Branch(String choice, PageList childPageList) {
+        this.choice = choice;
+        this.childPageList = childPageList;
+    }
+}

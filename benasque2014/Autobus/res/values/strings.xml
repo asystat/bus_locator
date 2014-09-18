@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Bus (Mercurio)</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="bus">Bus</string>
+    <string name="familia">Familia</string>
+    <string name="title_activity_recorridos">Recorridos</string>
+    <string name="action_add_item">Añadir</string>
+    <string name="action_remove_item">Remove item</string>
+    <string name="lista_recorridos_vacia">No hay recorridos creados</string>
+    <string name="title_activity_addrecorridos">Añadir recorrido</string>
+    <string name="label_nombre">Nombre</string>
+    <string name="hint_lineanombre">Linea 999</string>
+    <string name="label_codigo">Código</string>
+    <string name="hint_codigo">99999</string>
+    <string name="label_clase">Clase</string>
+    <string name="hint_clase">Opcional</string>
+    <string name="title_add_basic_info">Información básica:</string>
+    <string name="label_horainicio">Hora inicio</string>
+    <string name="hint_horainicio">07:00</string>
+    <string name="label_horafin">Hora fin</string>
+    <string name="hint_horafin">23:30</string>
+    <string name="label_frecuenciadepaso">Frecuencia de paso</string>
+    <string name="hint_frecuenciadepaso">Cada 15 minutos</string>
+    <string name="label_puntosayuda">Toque en el mapa para añadir un punto. Toque sobre el punto para eliminarlo</string>
+    <string name="title_activity_send_location">GPS</string>
+    <string name="title_activity_familia_lista_rutas">Seleccione una ruta</string>
+    <string name="title_activity_familia_mapa">Recorrido de línea</string>
+
+</resources>
